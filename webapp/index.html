@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>map-generator</title>
+        <script
+            id="sap-ui-bootstrap"
+            src="resources/sap-ui-core.js"
+            data-sap-ui-theme="sap_fiori_3"
+            data-sap-ui-resourceroots='{"mapgenerator": "./"}'
+            data-sap-ui-compatVersion="edge"
+            data-sap-ui-oninit="module:sap/ui/core/ComponentSupport"
+            data-sap-ui-async="true"
+            data-sap-ui-frameOptions="trusted"
+        ></script>
+        <!-- Yandex Map -->
+        <script src="https://api-maps.yandex.ru/2.1/?apikey=b7de6880-e0d0-4048-9692-8ddaad330622&lang=ru_RU" type="text/javascript"></script>
+    </head>
+    <body class="sapUiBody">
+        <div
+            data-sap-ui-component
+            data-name="mapgenerator"
+            data-id="container"
+            data-settings='{"id" : "map-generator"}'
+        ></div>
+        <!-- Google Map -->
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjxTOE1HT3sNKhMql2Bxxt8aT3gs35IU4=&libraries=&v=weekly" async></script>
+    </body>
+</html>

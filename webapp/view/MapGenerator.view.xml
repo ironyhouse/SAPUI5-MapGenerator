@@ -1,0 +1,18 @@
+<mvc:View
+    controllerName="mapgenerator.controller.MapGenerator"
+    xmlns:mvc="sap.ui.core.mvc"
+    displayBlock="true"
+    xmlns="sap.m"
+	xmlns:mapY="mapgenerator.control.yandex"
+	xmlns:mapG="mapgenerator.control.google">
+	<App id="app">
+		<pages>
+			<Page id="page" title="{i18n>title}">
+				<content>
+					<!-- <mapY:YandexMap /> -->
+					<mapG:GoogleMap />
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>
