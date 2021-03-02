@@ -1,6 +1,13 @@
 sap.ui.define(
-    ["sap/ui/core/Control", "sap/m/Label", "sap/m/Input", "sap/m/Button"],
-    function (Control, Label, Input, Button) {
+    [
+        "sap/ui/core/Control",
+        "sap/m/Label",
+        "sap/m/Input",
+        "sap/m/Button",
+        "sap/m/Select",
+        "sap/ui/core/Item"
+    ],
+    function (Control, Label, Input, Button, Select, Item) {
         "use strict";
         return Control.extend("mapgenerator.control.google.GoogleMap", {
             metadata: {
@@ -28,6 +35,11 @@ sap.ui.define(
                         multiple: false,
                         visibility: "hidden",
                     },
+                    _labelTravelMode: {
+                        type: "sap.m.Label",
+                        multiple: false,
+                        visibility: "hidden",
+                    },
                     _inputLatitude: {
                         type: "sap.m.Input",
                         multiple: false,
@@ -48,6 +60,11 @@ sap.ui.define(
                         multiple: false,
                         visibility: "hidden",
                     },
+                    _selectTravelMode: {
+                        type: "sap.m.Select",
+                        multiple: false,
+                        visibility: "hidden",
+                    },
                     _buttonNavToCoordinate: {
                         type: "sap.m.Button",
                         multiple: false,
@@ -57,8 +74,8 @@ sap.ui.define(
                         type: "sap.m.Button",
                         multiple: false,
                         visibility: "hidden",
-                    }
-                }
+                    },
+                },
             },
 
             init: function () {
@@ -105,7 +122,7 @@ sap.ui.define(
                 this.setAggregation(
                     "_inputAddressFrom",
                     new Input({
-                        id: "From",
+                        id: "AddressFrom",
                         placeholder: "XX.XX",
                     }).addStyleClass("sapUiSmallMarginButton")
                 );
@@ -123,6 +140,26 @@ sap.ui.define(
                         id: "AddressTo",
                         placeholder: "XX.XX",
                     }).addStyleClass("sapUiSmallMarginButton")
+                );
+
+                // Travel Mode
+                this.setAggregation(
+                    "_labelTravelMode",
+                    new Label({
+                        text: "Travel Mode",
+                    })
+                );
+
+                var oWalking = new Item ({ key: "WALKING", text: "WALKING" });
+                var oDriving = new Item ({ key: "DRIVING", text: "DRIVING" });
+
+                this.setAggregation(
+                    // WALKING DRIVING
+                    "_selectTravelMode",
+                    new Select({
+                        id: "TravelMode",
+                        width: "100%",
+                    }).addStyleClass("sapUiSmallMarginButton").addItem(oWalking).addItem(oDriving)
                 );
 
                 // button
@@ -145,19 +182,30 @@ sap.ui.define(
             },
 
             navToCoordinate: function () {
-                var latitude = +sap.ui.getCore().byId("Latitude").getValue();
-                var longitude = +sap.ui.getCore().byId("Longitude").getValue();
+                var nLatitude = +sap.ui.getCore().byId("Latitude").getValue();
+                var nLongitude = +sap.ui.getCore().byId("Longitude").getValue();
 
                 this.myMap.setZoom(10);
-                this.myMap.setCenter({ lat: latitude, lng: longitude });
+                this.myMap.setCenter({ lat: nLatitude, lng: nLongitude });
             },
 
             createRoute: function () {
                 var aMarkers = this.getModel("GoogleMap").getProperty(
                     "/GoogleMap/aMarkers"
                 );
+                var nAddressFrom = sap.ui
+                    .getCore()
+                    .byId("AddressFrom")
+                    .getValue();
+                var nAddressTo = sap.ui.getCore().byId("AddressTo").getValue();
+                var sTravelMode = sap.ui.getCore().byId("TravelMode").getSelectedKey();
+
+                console.log(sTravelMode)
+
                 // Create a renderer for directions and bind it to the map.
-                const directionsRenderer = new google.maps.DirectionsRenderer({});
+                const directionsRenderer = new google.maps.DirectionsRenderer(
+                    {}
+                );
                 // Instantiate a directions service.
                 const directionsService = new google.maps.DirectionsService();
 
@@ -166,18 +214,16 @@ sap.ui.define(
                     aMarkers[i].setMap(null);
                 }
 
-                directionsRenderer.setMap(this.myMap);
-
+                // create route
                 directionsService.route(
                     {
-                        origin: "st louis, mo",
-                        destination: "gallup, nm",
-                        travelMode: google.maps.TravelMode.DRIVING,  // WALKING
+                        origin: nAddressFrom,
+                        destination: nAddressTo,
+                        travelMode: google.maps.TravelMode[sTravelMode],
                     },
                     (response, status) => {
                         if (status == google.maps.DirectionsStatus.OK) {
                             directionsRenderer.setDirections(response);
-                            // showSteps(result, aMarkers, stepDisplay, this.myMap);
                         } else {
                             window.alert(
                                 "Directions request failed due to " + status
@@ -185,6 +231,9 @@ sap.ui.define(
                         }
                     }
                 );
+
+                // set changes
+                directionsRenderer.setMap(this.myMap);
             },
 
             // render map
@@ -197,96 +246,73 @@ sap.ui.define(
                         zoom: 12,
                     }
                 );
-
-                // // create marker
-                // this.myMap.addListener("click", (mapsMouseEvent) => {
-                //     let marker = new google.maps.Marker({
-                //         position: mapsMouseEvent.latLng,
-                //         map: this.myMap,
-                //         title: "Click to zoom",
-                //     });
-
-                //     // show marker coordinate
-                //     marker.addListener("click", () => {
-                //         let infoWindow = new google.maps.InfoWindow({
-                //             position: mapsMouseEvent.latLng,
-                //         });
-                //         infoWindow.setContent(
-                //             JSON.stringify(
-                //                 mapsMouseEvent.latLng.toJSON(),
-                //                 null,
-                //                 2
-                //             )
-                //         );
-                //         infoWindow.open(this.myMap);
-                //     });
-                // });
-
-                // this.myMap.addListener("center_changed", () => {
-                //   // 3 seconds after the center of the map has changed, pan back to the
-                //   // marker.
-                //   window.setTimeout(() => {
-                //     this.myMap.panTo(marker.getPosition());
-                //   }, 3000);
-                // });
             },
 
-            renderer: function (oYandexMap, oControl) {
+            renderer: function (oGoogleMap, oControl) {
                 //nav to coordinate
-                oYandexMap.openStart("div");
-                    oYandexMap.style("max-width", "300px");
-                    oYandexMap.style("margin", "1em");
-                    oYandexMap.openEnd();
-                    // from
-                    oYandexMap.renderControl(
-                        oControl.getAggregation("_labelLatitude")
-                    );
-                    oYandexMap.renderControl(
-                        oControl.getAggregation("_inputLatitude")
-                    );
-                    // to
-                    oYandexMap.renderControl(
-                        oControl.getAggregation("_labelLongitude")
-                    );
-                    oYandexMap.renderControl(
-                        oControl.getAggregation("_inputLongitude")
-                    );
-                    // button
-                    oYandexMap.renderControl(oControl.getAggregation("_buttonNavToCoordinate"));
-                oYandexMap.close("div");
-
+                oGoogleMap.openStart("div");
+                oGoogleMap.style("max-width", "300px");
+                oGoogleMap.style("margin", "1em");
+                oGoogleMap.openEnd();
+                // from
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_labelLatitude")
+                );
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_inputLatitude")
+                );
+                // to
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_labelLongitude")
+                );
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_inputLongitude")
+                );
+                // button
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_buttonNavToCoordinate")
+                );
+                oGoogleMap.close("div");
 
                 // createRoute
-                oYandexMap.openStart("div");
-                    oYandexMap.style("max-width", "300px");
-                    oYandexMap.style("margin", "1em");
-                    oYandexMap.openEnd();
-                    // from
-                    oYandexMap.renderControl(
-                        oControl.getAggregation("_labelAddressFrom")
-                    );
-                    oYandexMap.renderControl(
-                        oControl.getAggregation("_inputAddressFrom")
-                    );
-                    // to
-                    oYandexMap.renderControl(
-                        oControl.getAggregation("_labelAddressTo")
-                    );
-                    oYandexMap.renderControl(
-                        oControl.getAggregation("_inputAddressTo")
-                    );
-                    // button
-                    oYandexMap.renderControl(oControl.getAggregation("_buttonCreateRoute"));
-                oYandexMap.close("div");
-
+                oGoogleMap.openStart("div");
+                oGoogleMap.style("max-width", "300px");
+                oGoogleMap.style("margin", "1em");
+                oGoogleMap.openEnd();
+                // from
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_labelAddressFrom")
+                );
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_inputAddressFrom")
+                );
+                // to
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_labelAddressTo")
+                );
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_inputAddressTo")
+                );
+                // travel mode
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_labelTravelMode")
+                );
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_selectTravelMode")
+                );
+                // button
+                oGoogleMap.renderControl(
+                    oControl.getAggregation("_buttonCreateRoute")
+                );
+                oGoogleMap.close("div");
 
                 //map
-                oYandexMap.openStart("div", "mapG");
-                oYandexMap.class("map-yandex");
-                oYandexMap.style("height", "50vh");
-                oYandexMap.style("margin", "0 auto");
-                oYandexMap.openEnd();
-                oYandexMap.close("div");
+                oGoogleMap.openStart("div", "mapG");
+                oGoogleMap.class("map-yandex");
+                oGoogleMap.style("height", "50vh");
+                oGoogleMap.style("margin", "0 auto");
+                oGoogleMap.openEnd();
+                oGoogleMap.close("div");
             },
         });
     }
