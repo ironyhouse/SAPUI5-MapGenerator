@@ -59,6 +59,10 @@
       "YandexMap": {
 				"type": "sap.ui.model.json.JSONModel",
 				"uri": "control/Yandex/YandexMap.json"
+			},
+      "GoogleMap": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "control/Google/GoogleMap.json"
 			}
     },
     "resources": {
