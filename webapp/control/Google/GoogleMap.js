@@ -5,7 +5,7 @@ sap.ui.define(
         "sap/m/Input",
         "sap/m/Button",
         "sap/m/Select",
-        "sap/ui/core/Item"
+        "sap/ui/core/Item",
     ],
     function (Control, Label, Input, Button, Select, Item) {
         "use strict";
@@ -81,6 +81,8 @@ sap.ui.define(
             init: function () {
                 // Google Map
                 this.myMap;
+                var oWalking = new Item({ key: "WALKING", text: "WALKING" });
+                var oDriving = new Item({ key: "DRIVING", text: "DRIVING" });
 
                 // Latitude
                 this.setAggregation(
@@ -123,7 +125,7 @@ sap.ui.define(
                     "_inputAddressFrom",
                     new Input({
                         id: "AddressFrom",
-                        placeholder: "XX.XX",
+                        placeholder: "Write the starting address...",
                     }).addStyleClass("sapUiSmallMarginButton")
                 );
 
@@ -138,7 +140,7 @@ sap.ui.define(
                     "_inputAddressTo",
                     new Input({
                         id: "AddressTo",
-                        placeholder: "XX.XX",
+                        placeholder: "Write arrival address...",
                     }).addStyleClass("sapUiSmallMarginButton")
                 );
 
@@ -149,17 +151,16 @@ sap.ui.define(
                         text: "Travel Mode",
                     })
                 );
-
-                var oWalking = new Item ({ key: "WALKING", text: "WALKING" });
-                var oDriving = new Item ({ key: "DRIVING", text: "DRIVING" });
-
                 this.setAggregation(
                     // WALKING DRIVING
                     "_selectTravelMode",
                     new Select({
                         id: "TravelMode",
                         width: "100%",
-                    }).addStyleClass("sapUiSmallMarginButton").addItem(oWalking).addItem(oDriving)
+                    })
+                        .addStyleClass("sapUiSmallMarginButton")
+                        .addItem(oWalking)
+                        .addItem(oDriving)
                 );
 
                 // button
@@ -198,14 +199,13 @@ sap.ui.define(
                     .byId("AddressFrom")
                     .getValue();
                 var nAddressTo = sap.ui.getCore().byId("AddressTo").getValue();
-                var sTravelMode = sap.ui.getCore().byId("TravelMode").getSelectedKey();
-
-                console.log(sTravelMode)
+                var sTravelMode = sap.ui
+                    .getCore()
+                    .byId("TravelMode")
+                    .getSelectedKey();
 
                 // Create a renderer for directions and bind it to the map.
-                const directionsRenderer = new google.maps.DirectionsRenderer(
-                    {}
-                );
+                const directionsRenderer = new google.maps.DirectionsRenderer();
                 // Instantiate a directions service.
                 const directionsService = new google.maps.DirectionsService();
 
@@ -308,7 +308,6 @@ sap.ui.define(
 
                 //map
                 oGoogleMap.openStart("div", "mapG");
-                oGoogleMap.class("map-yandex");
                 oGoogleMap.style("height", "50vh");
                 oGoogleMap.style("margin", "0 auto");
                 oGoogleMap.openEnd();

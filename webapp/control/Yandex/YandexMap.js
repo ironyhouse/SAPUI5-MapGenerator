@@ -39,13 +39,6 @@ sap.ui.define(
             visibility: "hidden",
           },
         },
-        // events : {
-        // 	change : {
-        // 		parameters : {
-        // 			value : {type : "int"}
-        // 		}
-        // 	}
-        // }
       },
 
       init: function () {
