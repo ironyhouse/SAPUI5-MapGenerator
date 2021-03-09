@@ -3,13 +3,11 @@
     xmlns:mvc="sap.ui.core.mvc"
     displayBlock="true"
     xmlns="sap.m"
-	xmlns:mapY="mapgenerator.control.yandex"
 	xmlns:mapG="mapgenerator.control.google">
 	<App id="app">
 		<pages>
 			<Page id="page" title="Maps Generator">
 				<content>
-					<!-- <mapY:YandexMap /> -->
 					<mapG:GoogleMap />
 				</content>
 			</Page>
